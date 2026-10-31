@@ -8,6 +8,8 @@ ChudPresence Mobile can show your current music or video as a Discord activity. 
 - The Discord Android app installed and signed in on the same phone.
 - A music or video app that provides an Android media session. The details available can vary by app and by what you are playing.
 
+Download the versioned APK from this repository's Releases page and install it on your phone. Android may ask you to allow installs from your chosen source.
+
 ## Get started
 
 1. Open ChudPresence Mobile and follow the setup screens. Make sure you're signed in to Discord on your phone.
@@ -38,3 +40,4 @@ If you also use ChudPresence Link on your computer, **Settings → Link** lets y
 - Start playback in the media app, then check that the app is enabled under **Settings → Activities**. Some apps expose less information than others.
 - If reporting stops in the background, check the phone's battery settings and allow background reporting for ChudPresence Mobile.
 - If Link is unavailable, check the local network and make sure Link is running on the computer. Phone reporting can still work independently.
+- Android cannot update an existing installation signed with a different key. If you previously installed a debug build, you may need to uninstall it before installing the release APK; uninstalling removes that installation's app data.

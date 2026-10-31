@@ -5,6 +5,7 @@ plugins {
 }
 
 val twitchClientId = providers.gradleProperty("TWITCH_CLIENT_ID").orElse("").get()
+val releaseKeystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
 
 android {
     namespace = "dev.chudpresence.mobile"
@@ -32,6 +33,17 @@ android {
         compose = true
         buildConfig = true
         prefab = true
+    }
+    if (!releaseKeystorePath.isNullOrBlank()) {
+        signingConfigs {
+            create("ciRelease") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = requireNotNull(System.getenv("ANDROID_KEYSTORE_PASSWORD"))
+                keyAlias = requireNotNull(System.getenv("ANDROID_KEY_ALIAS"))
+                keyPassword = requireNotNull(System.getenv("ANDROID_KEY_PASSWORD"))
+            }
+        }
+        buildTypes.getByName("release").signingConfig = signingConfigs.getByName("ciRelease")
     }
     externalNativeBuild {
         cmake {

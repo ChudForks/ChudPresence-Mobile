@@ -1,0 +1,115 @@
+name: Build release APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-apk-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the milestone
+        uses: actions/checkout@v4
+
+      - name: Read version and check release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(sed -nE 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"([^"]+)"[[:space:]]*$/\1/p' android/app/build.gradle.kts)
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "versionName must be a single version such as 1.4.0" >&2
+            exit 1
+          fi
+          tag="v$version"
+          apk="ChudPresence-$tag.apk"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+          if gh release view "$tag" --json assets --jq '.assets[].name' > "$RUNNER_TEMP/release-assets" 2>/dev/null; then
+            if grep -Fxq "$apk" "$RUNNER_TEMP/release-assets"; then
+              echo "APK for $tag already exists; nothing to publish."
+              echo "build=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          if existing=$(gh api "repos/$GITHUB_REPOSITORY/commits/$tag" --jq '.sha' 2>/dev/null); then
+            if [[ "$existing" != "$GITHUB_SHA" ]]; then
+              echo "Existing $tag does not point to this milestone; refusing to replace it." >&2
+              exit 1
+            fi
+          fi
+          echo "build=true" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Java
+        if: steps.version.outputs.build == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        if: steps.version.outputs.build == 'true'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android build dependencies
+        if: steps.version.outputs.build == 'true'
+        run: |
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;27.0.12077973' 'cmake;3.22.1'
+
+      - name: Restore private build dependencies
+        if: steps.version.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SDK_PASSPHRASE: ${{ secrets.DISCORD_SDK_PASSPHRASE }}
+          SIGNING_KEY: ${{ secrets.ANDROID_RELEASE_KEYSTORE }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SDK_PASSPHRASE" && test -n "$SIGNING_KEY"
+          gh release download ci-build-dependencies --pattern discord_partner_sdk.aar.gpg --dir "$RUNNER_TEMP"
+          mkdir -p android/app/libs
+          printf '%s' "$SDK_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --output android/app/libs/discord_partner_sdk.aar --decrypt "$RUNNER_TEMP/discord_partner_sdk.aar.gpg"
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/chudpresence-release.jks"
+
+      - name: Test and build signed APK
+        if: steps.version.outputs.build == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/chudpresence-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: chudpresence
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:testDebugUnitTest :app:assembleRelease --no-daemon
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/release/app-release.apk
+          if [[ $("$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer" manifest debuggable app/build/outputs/apk/release/app-release.apk) != false ]]; then
+            echo 'Refusing to publish a debuggable APK.' >&2
+            exit 1
+          fi
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/${{ steps.version.outputs.apk }}"
+
+      - name: Publish APK
+        if: steps.version.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          APK: ${{ steps.version.outputs.apk }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$RUNNER_TEMP/$APK"
+          else
+            gh release create "$TAG" "$RUNNER_TEMP/$APK" --target "$GITHUB_SHA" --title "ChudPresence $TAG" --notes "ChudPresence Mobile $TAG for Android."
+          fi
