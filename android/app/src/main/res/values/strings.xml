@@ -1,0 +1,11 @@
+<resources>
+    <string name="crunchyroll_login_title">Experimental Crunchyroll sign-in</string>
+    <string name="crunchyroll_login_warning">Experimental, unofficial integration. Sign in on Crunchyroll’s page below. ChudPresence never sees your password; it stores only the resulting session token using Android Keystore encryption.</string>
+    <string name="crunchyroll_login_cancel">Cancel</string>
+    <string name="crunchyroll_login_retry">Retry</string>
+    <string name="crunchyroll_login_prompt">Experimental Crunchyroll enrichment • complete sign-in below. Your password stays inside Crunchyroll’s page.</string>
+    <string name="crunchyroll_login_incomplete">Crunchyroll sign-in did not complete: %1$s. You can close this screen and try again.</string>
+    <string name="crunchyroll_login_unknown_error">unknown error</string>
+    <string name="crunchyroll_login_finishing">Finishing experimental Crunchyroll setup…</string>
+    <string name="crunchyroll_login_failed">Crunchyroll setup failed: %1$s. This integration is experimental; tap Retry to restart sign-in or close this screen and try again later.</string>
+</resources>

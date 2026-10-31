@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "services": [
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "packages": ["com.google.android.youtube", "app.revanced.android.youtube"],
+      "mediaKind": "video",
+      "titleLabel": "Video title",
+      "artistLabel": "Creator",
+      "defaultContent": "artist",
+      "allowedHosts": ["youtube.com", "www.youtube.com", "youtu.be"],
+      "contentButtonLabel": "Watch on YouTube",
+      "artistButtonLabel": "View channel"
+    },
+    {
+      "id": "youtube_music",
+      "name": "YouTube Music",
+      "packages": ["com.google.android.apps.youtube.music", "app.revanced.android.apps.youtube.music"],
+      "mediaKind": "music",
+      "titleLabel": "Song title",
+      "artistLabel": "Artist",
+      "defaultContent": "artist",
+      "allowedHosts": ["music.youtube.com"],
+      "contentButtonLabel": "Play on YouTube Music",
+      "artistButtonLabel": "Search artist"
+    },
+    {
+      "id": "twitch",
+      "name": "Twitch",
+      "packages": ["tv.twitch.android.app"],
+      "mediaKind": "video",
+      "titleLabel": "Stream / VOD title",
+      "artistLabel": "Streamer",
+      "defaultContent": "artist",
+      "allowedHosts": ["twitch.tv", "www.twitch.tv"],
+      "contentButtonLabel": "Watch on Twitch"
+    },
+    {
+      "id": "crunchyroll",
+      "name": "Crunchyroll",
+      "packages": ["com.crunchyroll.crunchyroid"],
+      "mediaKind": "video",
+      "titleLabel": "Episode title",
+      "artistLabel": "Series",
+      "defaultContent": "artist",
+      "supportsEpisodes": true,
+      "allowedHosts": ["crunchyroll.com", "www.crunchyroll.com"],
+      "contentButtonLabel": "Watch on Crunchyroll",
+      "artistButtonLabel": "View series"
+    },
+    {
+      "id": "hulu",
+      "name": "Hulu",
+      "packages": ["com.hulu.plus"],
+      "mediaKind": "video",
+      "titleLabel": "Movie / episode title",
+      "artistLabel": "Series",
+      "defaultContent": "app_name",
+      "supportsEpisodes": true,
+      "fallbackArtworkUrl": "https://play-lh.googleusercontent.com/Nvn3JLQ-9URuX94b1TtJyloIili61q_mQTxoCvMMs7xIhfQKRX1UyS7KyjDtlkmgOZa2uUA74671jVm0O8UWOvg=w512-h512",
+      "allowedHosts": ["hulu.com", "www.hulu.com"],
+      "contentButtonLabel": "Watch on Hulu"
+    },
+    {
+      "id": "disney_plus",
+      "name": "Disney+",
+      "packages": ["com.disney.disneyplus"],
+      "mediaKind": "video",
+      "titleField": "display_subtitle",
+      "artistField": "title",
+      "titleLabel": "Episode title",
+      "artistLabel": "Series",
+      "defaultContent": "artist",
+      "allowedHosts": ["disneyplus.com", "www.disneyplus.com"],
+      "contentButtonLabel": "Watch on Disney+"
+    }
+  ]
+}

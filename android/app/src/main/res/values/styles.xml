@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.ChudPresence" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#F6F6F8</item>
+        <item name="android:colorAccent">#202124</item>
+    </style>
+</resources>

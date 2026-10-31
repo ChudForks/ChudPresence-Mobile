@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Link's user-selected LAN IP is dynamic. LinkApi restricts HTTP to literal private
+         addresses, validates the desktop identity, and refuses all redirects. Other app
+         integrations retain their existing HTTPS endpoints. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
